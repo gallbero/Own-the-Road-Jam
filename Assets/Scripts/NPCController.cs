@@ -9,11 +9,12 @@ public class NPCController : MonoBehaviour
     private AIDestinationSetter _aiDestinationSetter;
     private AIPath _aiPath;
     private Rigidbody2D _rigidbody;
-    private GameObject _spawnPoints;
+    public GameObject _spawnPoints;
 
     // --- TARGETS & POINTS ---
     // These track where the NPC is, where it’s going, and potential destinations
     private readonly List<GameObject> _points = new List<GameObject>(); // List of all possible spawn/target points
+    private int index = 0;
     public GameObject startPoint;    // Where the NPC just came from
     public GameObject destination;   // The final target point
     public GameObject sideTarget;    // An invisible point used to steer around obstacles
@@ -44,26 +45,34 @@ public class NPCController : MonoBehaviour
         }
 
         // 3. Find all spawn points in the scene and put them in the list
-        _spawnPoints = GameObject.Find("SpawnPoints");
+        //_spawnPoints = GameObject.Find("SpawnPoints");
         for (int i = 0; i < _spawnPoints.transform.childCount; i++) {
             _points.Add(_spawnPoints.transform.GetChild(i).gameObject);
         }
         
         // 4. Pick a random starting point and teleport there
-        startPoint = _points[Random.Range(0, _points.Count)];  
+        startPoint = _points[0];  
         gameObject.transform.position = startPoint.transform.position;
         
         GetDestination();
     }
-    
-    private void GetDestination() 
+
+    private void GetDestination()
     {
-        // Pick a random point that is NOT the one we are currently at
-        destination = startPoint;
-        while (destination == startPoint) {
-            destination = _points[Random.Range(0, _points.Count)];
+       // Pick a random point that is NOT the one we are currently at
+       destination = startPoint;
+        
+       index++;
+       
+        if (index >= _points.Count)
+        {
+            index = 0;
+            gameObject.transform.position = _points[index].transform.position;
+            index++;     
         }
-        // Tell the pathfinding system to go to the new destination
+
+        destination = _points[index];
+
         _aiDestinationSetter.target = destination.transform;
     }
 
