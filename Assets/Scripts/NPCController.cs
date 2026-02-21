@@ -1,6 +1,7 @@
+using Pathfinding;
 using System.Collections.Generic;
 using UnityEngine;
-using Pathfinding;
+using UnityEngine.SceneManagement;
 
 public class NPCController : MonoBehaviour
 {
@@ -31,8 +32,11 @@ public class NPCController : MonoBehaviour
     public Vector3 detectionPoint;     // The actual position of the "sensor" in front of the NPC
     private bool _isDiverting = false; // Is the NPC currently trying to go around something?
 
+    public int speed = 2;   
+
     private void Start() 
     {
+        carLayer = LayerMask.NameToLayer("Car");
         // 1. Link the code to the components attached to this NPC
         _aiDestinationSetter = GetComponent<AIDestinationSetter>();
         _aiPath = GetComponent<AIPath>();
@@ -68,7 +72,8 @@ public class NPCController : MonoBehaviour
         {
             index = 0;
             gameObject.transform.position = _points[index].transform.position;
-            index++;     
+            index++;    
+            ScoreController.instance.AddPoint();
         }
 
         destination = _points[index];
@@ -94,37 +99,6 @@ public class NPCController : MonoBehaviour
                 GetDestination();     
             }
         }
-        
-        // DETECTION: Check for other "Cars" in front
-        detectionPoint = transform.position + (transform.up * detectMul);
-        Collider2D hit = Physics2D.OverlapCircle(detectionPoint, detectionRadius, LayerMask.GetMask("Car"));
-
-        // If something is in the way and it's not ourselves
-        if (hit != null && hit.gameObject != gameObject && !_isDiverting) {
-            if (!_isDiverting) {
-                destination = _aiDestinationSetter.target.gameObject;
-                _isDiverting = true;
-            }
-
-            // Calculate a point to the side to steer around the obstacle
-            Vector2 moveDir = _rigidbody.velocity.normalized;
-            if (moveDir == Vector2.zero) moveDir = transform.up;
-
-            Vector2 localLeft = Vector2.Perpendicular(moveDir); // Find the 90-degree angle
-            Vector3 diagonalOffset = (Vector3)moveDir * 3 + (Vector3)(localLeft * sideMove);
-
-            // Move the side target and tell the NPC to go there instead
-            Vector3 divertPoint = transform.position + diagonalOffset;
-            sideTarget.transform.position = divertPoint;
-            _aiDestinationSetter.target = sideTarget.transform;
-        } 
-        else if (_isDiverting) {
-            // If we get stuck or slow down while diverting, reset to the main destination
-            if (_aiPath.velocity.magnitude < 0.5f) {
-                _aiDestinationSetter.target = destination.transform;
-                _isDiverting = false;
-            }
-        }
     }
 
     // DRAWING: Shows the detection circle in the Unity Editor Scene view
@@ -132,4 +106,42 @@ public class NPCController : MonoBehaviour
         Gizmos.color = Color.cyan;
         Gizmos.DrawWireSphere(detectionPoint, detectionRadius);
     }
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+       if (collision.gameObject.CompareTag("light"))
+       {
+            if (!collision.transform.GetComponent<LightChanger>().isGreen)
+            {
+                _aiPath.maxSpeed = 0;
+            }
+       }
+
+      
+
+
+    }
+
+    private void OnTriggerStay2D(Collider2D collision)
+    {
+        if (collision.gameObject.CompareTag("light"))
+        {
+            if (collision.transform.GetComponent<LightChanger>().isGreen)
+            {
+                _aiPath.maxSpeed = speed;
+            }
+        }
+    }
+
+    private int carLayer;
+
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (collision.gameObject.layer == carLayer)
+        {
+            ScoreController.instance.ShowEndPanel();
+        }
+    }
+
+
 }
