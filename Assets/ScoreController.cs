@@ -6,6 +6,7 @@ using UnityEngine.SceneManagement;
 
 public class ScoreController: MonoBehaviour
 {
+    public int scoreToWin = 35;
     public static ScoreController instance;
     public ScoreView scoreView;
     public int score = 0;
@@ -20,6 +21,10 @@ public class ScoreController: MonoBehaviour
     {
         score++;
         scoreView.UpdateScore(score);
+            if (score >= scoreToWin)
+            {
+                scoreView.ShowWinPanel();
+            }
     }
 
    public void ShowEndPanel()
@@ -27,7 +32,13 @@ public class ScoreController: MonoBehaviour
        scoreView.ShowEndPanel();
     }
 
-    void RestartScene()
+
+    public void nextscene(string nextscene)
+    {
+        
+        SceneManager.LoadScene(nextscene);
+    }
+    public void RestartScene()
     {
         Scene currentScene = SceneManager.GetActiveScene();
         SceneManager.LoadScene(currentScene.name);

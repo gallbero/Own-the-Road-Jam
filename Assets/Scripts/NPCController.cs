@@ -1,4 +1,5 @@
 using Pathfinding;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -32,10 +33,12 @@ public class NPCController : MonoBehaviour
     public Vector3 detectionPoint;     // The actual position of the "sensor" in front of the NPC
     private bool _isDiverting = false; // Is the NPC currently trying to go around something?
 
-    public int speed = 2;   
+    public float speed = 10;
+    public float speedIncTime = 20f; 
 
     private void Start() 
     {
+        //speed = Random.Range(5, 12);
         carLayer = LayerMask.NameToLayer("Car");
         // 1. Link the code to the components attached to this NPC
         _aiDestinationSetter = GetComponent<AIDestinationSetter>();
@@ -59,8 +62,17 @@ public class NPCController : MonoBehaviour
         gameObject.transform.position = startPoint.transform.position;
         
         GetDestination();
+        StartCoroutine(IncreaseSpeed());
     }
 
+    IEnumerator IncreaseSpeed()
+    {
+        while (true)
+        {
+            yield return new WaitForSeconds(speedIncTime);
+            speed += 0.05f;
+        }
+    }
     private void GetDestination()
     {
        // Pick a random point that is NOT the one we are currently at
@@ -99,6 +111,8 @@ public class NPCController : MonoBehaviour
                 GetDestination();     
             }
         }
+
+
     }
 
     // DRAWING: Shows the detection circle in the Unity Editor Scene view
