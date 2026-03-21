@@ -34,7 +34,9 @@ public class NPCController : MonoBehaviour
     private bool _isDiverting = false; // Is the NPC currently trying to go around something?
 
     public float speed = 10;
-    public float speedIncTime = 20f; 
+    public float speedIncTime = 20f;
+    public float speedInc = 0.1f;
+    public float maxSpeed = 20f;
 
     private void Start() 
     {
@@ -67,10 +69,10 @@ public class NPCController : MonoBehaviour
 
     IEnumerator IncreaseSpeed()
     {
-        while (true)
+        while (speed < maxSpeed)
         {
             yield return new WaitForSeconds(speedIncTime);
-            speed += 0.05f;
+            speed += speedInc;
         }
     }
     private void GetDestination()
