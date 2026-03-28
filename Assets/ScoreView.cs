@@ -5,31 +5,53 @@ using UnityEngine;
 
 public class ScoreView : MonoBehaviour
 {
+    public bool ismenu = true;
     public GameObject winpanel;
     private TextMeshProUGUI Scoretext;
     public GameObject EndPanel;
     // Start is called before the first frame update
+    
     void Start()
     {
-        winpanel.SetActive(false);  
-        Scoretext = GameObject.Find("ScoreText").GetComponent<TextMeshProUGUI>();
-        EndPanel.SetActive(false);
+        if (ismenu) return;
+        {
+            winpanel.SetActive(false);
+            Scoretext = GameObject.Find("ScoreText").GetComponent<TextMeshProUGUI>();
+            EndPanel.SetActive(false);
+
+        }
+
+         
     }
 
-    public void UpdateScore(int score)
+    public void UpdateScore(string score)
     {
-        Scoretext.text = "Score: " + score;
+        if (ismenu) return;
+        {
+            Scoretext.text = "Score: " + score.ToString();
+        }   
     }
 
     public void ShowWinPanel()
     {
-        winpanel.SetActive(true);
+       if (ismenu) return;
+        {
+            winpanel.SetActive(true);
+        }
+
+        
     }   
 
 
 
     public void ShowEndPanel()
     {
-        EndPanel.SetActive(true);
+        if (ismenu) return;
+        {
+            EndPanel.SetActive(true);
+        }
+
+
+
     }
 }

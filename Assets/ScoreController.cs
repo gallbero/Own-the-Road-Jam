@@ -11,26 +11,44 @@ public class ScoreController: MonoBehaviour
     public ScoreView scoreView;
     public int score = 0;
 
+    public bool ismenu = true;
     void Awake()
     {
+      
         instance = this;
-        scoreView = GetComponent<ScoreView>(); 
+       if (!ismenu)
+       {
+            scoreView = GetComponent<ScoreView>();
+            scoreView.UpdateScore(score + "/" + scoreToWin);
+        }     
+
+       
     }
 
     public void AddPoint()
     {
-        score++;
-        scoreView.UpdateScore(score);
+        if (ismenu) return;
+        {
+            score++;
+            scoreView.UpdateScore(score + "/" + scoreToWin);
             if (score >= scoreToWin)
             {
                 scoreView.ShowWinPanel();
             }
+        }
+
     }
 
    public void ShowEndPanel()
-    {
-       scoreView.ShowEndPanel();
-    }
+   {
+        if (ismenu) return;
+        {
+            scoreView.ShowEndPanel();
+
+        }
+        
+       
+   }
 
 
     public void nextscene(string nextscene)
